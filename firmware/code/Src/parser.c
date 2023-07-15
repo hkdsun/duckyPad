@@ -12,7 +12,7 @@
 
 uint8_t pf_name_cache[MAX_PROFILES][PF_CACHE_FILENAME_MAXLEN];
 
-static const uint8_t col_lookup[7][3] = {  
+static const uint8_t col_lookup[7][3] = {
    {18, 60, 103},
    {15, 57, 100},
    {12, 54, 97},
@@ -54,7 +54,7 @@ void delay_wrapper(int32_t amount, int32_t fuzz)
 
 char* goto_next_arg(char* buf, char* buf_end)
 {
-  char* curr = buf;  
+  char* curr = buf;
   if(buf == NULL || curr >= buf_end)
     return NULL;
   while(curr < buf_end && *curr != ' ')
@@ -69,7 +69,7 @@ char* goto_next_arg(char* buf, char* buf_end)
 char* find_profile(uint8_t pid)
 {
   char* profile_fn;
-  fno.lfname = lfn_buf; 
+  fno.lfname = lfn_buf;
   fno.lfsize = FILENAME_SIZE - 1;
 
   if (f_opendir(&dir, "/") != FR_OK)
@@ -242,7 +242,7 @@ uint8_t how_many_digits(uint8_t number)
 void scan_profiles(void)
 {
   char* profile_fn;
-  fno.lfname = lfn_buf; 
+  fno.lfname = lfn_buf;
   fno.lfsize = FILENAME_SIZE - 1;
   memset(p_cache.available_profile, 0, MAX_PROFILES);
 
@@ -332,7 +332,7 @@ uint8_t get_keynames(profile_cache* pcache)
 
   if(f_open(&sd_file, temp_buf, FA_READ) != 0)
     goto gkn_end;
-  
+
   while(f_gets(temp_buf, PATH_SIZE, &sd_file))
   {
     if(temp_buf[0] == 'z')
@@ -420,7 +420,7 @@ void print_legend(void)
   sprintf(temp_buf, "profile%d_", p_cache.current_profile);
   char* pf_name = p_cache.profile_fn + strlen(temp_buf);
   memset(temp_buf, 0, PATH_SIZE);
-  sprintf(temp_buf, "P%d: %s", p_cache.current_profile, pf_name);
+  sprintf(temp_buf, "=== P%d: %s ===", p_cache.current_profile, pf_name);
   if(strlen(temp_buf) > 21)
     temp_buf[21] = 0;
   int8_t x_start = (21 - strlen(temp_buf)) * 3;

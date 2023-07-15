@@ -3,3 +3,5 @@
 **/venv/
 
 firmware/code/MDK-ARM
+firmware/hex2dfu/build
+firmware/hex2dfu/hex2dfu
