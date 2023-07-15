@@ -47,7 +47,7 @@ void set_brightness(void)
 }
 
 void change_brightness()
-{   
+{
     redraw_bg();
     osDelay(30);
     ssd1306_Fill(Black);
@@ -106,14 +106,21 @@ void handle_tactile_button_press(uint8_t button_num)
     media_key_release();
     if(button_hold_duration < LONG_PRESS_MS) // short press
     {
-        if(button_num == KEY_BUTTON1) // -
-          change_profile(PREV_PROFILE);
-        else if(button_num == KEY_BUTTON2) // +
+        if(button_num == KEY_BUTTON1)
+        {
+          if(p_cache.current_profile == 1) {
+            restore_profile(8); // go to profile selection menu
+          } else {
+            restore_profile(1); // go home
+          }
+        } else if(button_num == KEY_BUTTON2)
           change_profile(NEXT_PROFILE);
     }
     else // long press
     {
-      if(button_num == KEY_BUTTON1 || button_num == KEY_BUTTON2) // -
+      if(button_num == KEY_BUTTON1)
+        change_profile(PREV_PROFILE);
+      else if(button_num == KEY_BUTTON2) // -
       {
         is_busy = 1;
         change_brightness();
@@ -524,7 +531,7 @@ void handle_hid_command(void)
   else if(command_type == HID_COMMAND_LIST_FILES)
   {
     char* this_filename;
-    fno.lfname = lfn_buf; 
+    fno.lfname = lfn_buf;
     fno.lfsize = FILENAME_SIZE - 1;
     if (f_opendir(&dir, hid_rx_buf+3) != FR_OK)
       goto list_file_end;
@@ -537,7 +544,7 @@ void handle_hid_command(void)
       hid_tx_buf[0] = 4;
       hid_tx_buf[1] = 0;
       hid_tx_buf[2] = HID_RESPONSE_OK;
-      
+
       if (f_readdir(&dir, &fno) != FR_OK || fno.fname[0] == 0)
         break;
       if (fno.fattrib & AM_DIR)
@@ -547,7 +554,7 @@ void handle_hid_command(void)
       //   continue;
       strncpy(hid_tx_buf+4, this_filename, FILENAME_SIZE);
       USBD_CUSTOM_HID_SendReport(&hUsbDeviceFS, hid_tx_buf, HID_TX_BUF_SIZE);
-      
+
       if(check_resume() == 0)
         goto hid_read_file_end;
 
@@ -595,7 +602,7 @@ void handle_hid_command(void)
 
       if(check_resume() == 0)
         goto hid_read_file_end;
-      
+
       if(bytes_read < HID_FILE_READ_BUF_SIZE)
         break;
     }
@@ -938,5 +945,5 @@ void animation_task_start(void)
     start_sleeping();
   // dim OLED screen after 5 minutes of idle to prevent burn-in
   if(ms_since_last_keypress > 300000)
-    ssd1306_dim(1);    
+    ssd1306_dim(1);
 }
