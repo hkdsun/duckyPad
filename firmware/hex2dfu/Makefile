@@ -1,2 +1,2 @@
 build:
-	gcc main.c -o hex2dfu
+	gcc -o hex2dfu main.c

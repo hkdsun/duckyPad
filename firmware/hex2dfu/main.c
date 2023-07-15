@@ -5,8 +5,7 @@
 #include <string.h>
 #include <stdint.h>
 
-
-//DfuSe file definitions !
+// DfuSe file definitions !
 #define Psignature "DfuSe"
 #define Isignature "Target"
 #define version 0x01
@@ -15,19 +14,13 @@
 #define target_named 0x01
 #define target_name
 
-
-
-
 typedef struct Hexlines
 {
-   int type;
-   int adress;
-   int lenght;
-   int* data;
+    int type;
+    int adress;
+    int lenght;
+    int *data;
 } Hexline;
-
-
-
 
 int load_file(char *filename);
 
@@ -41,364 +34,354 @@ void create_dfusuffix(void);
 
 uint32_t crc32_byte(uint32_t accum, uint8_t delta);
 
-extern int	memory[65536];		/* the memory is global */
+extern int memory[65536]; /* the memory is global */
 
-int	memory[65536];		/* the memory is global */
+int memory[65536]; /* the memory is global */
 
-char	image[65536];		/* the memory is global */
-char	tprefix[65536];		/* the memory is global */
-char	prefix[65536];		/* the memory is global */
-char	suffix[65536];		/* the memory is global */
-unsigned char	data[65536];		/* the memory is global */
+char image[65536];         /* the memory is global */
+char tprefix[65536];       /* the memory is global */
+char prefix[65536];        /* the memory is global */
+char suffix[65536];        /* the memory is global */
+unsigned char data[65536]; /* the memory is global */
 
-int main( int argc, const char *argv[])
+int main(int argc, const char *argv[])
 {
-uint32_t crc32 =0xffffffff;
-int i=0;
-int total =0;
-const char *filename;
-char crc_table[4];
-FILE *fhex;
+    uint32_t crc32 = 0xffffffff;
+    int i = 0;
+    int total = 0;
+    const char *filename;
+    char crc_table[4];
+    FILE *fhex;
 
-printf("dfuse file manager\n");
-if (argc < 2)
+    printf("dfuse file manager\n");
+    if (argc < 2)
     {
-    printf("too few arguments\n");
-    return 0;
+        printf("too few arguments\n");
+        return 1;
     }
 
     printf("loading the file\n");
 
-    //extracting the image
+    // extracting the image
     filename = argv[1];
-    total = load_file((char*)filename);
+    total = load_file((char *)filename);
 
     create_tprefix(total);
     create_dfuprefix(total);
     create_dfusuffix();
 
     printf("\nDFU prefix\n");
-    for (i=0;i<11;i++)
-        {
-        printf("%02x ",prefix[i]);
-        data[i]=prefix[i];
-        }
+    for (i = 0; i < 11; i++)
+    {
+        printf("%02x ", prefix[i]);
+        data[i] = prefix[i];
+    }
 
     printf("\nDFU target prefix\n");
-    for (i=0;i<274;i++)
-        {
-        printf("%02x ",tprefix[i]);
-        data[i+11]=tprefix[i];
-        }
+    for (i = 0; i < 274; i++)
+    {
+        printf("%02x ", tprefix[i]);
+        data[i + 11] = tprefix[i];
+    }
 
-    printf("\nDFU core image of size %d\n",total);
-    for (i=0;i<total+8;i++)
-        {
-        printf("%02x ",image[i]);
-        data[i+11+274]=image[i];
-        }
+    printf("\nDFU core image of size %d\n", total);
+    for (i = 0; i < total + 8; i++)
+    {
+        printf("%02x ", image[i]);
+        data[i + 11 + 274] = image[i];
+    }
 
     printf("\nDFU suffix\n");
-    for (i=0;i<12;i++)
-        {
-        printf("%02x ",suffix[i]);
-        data[i+11+274+total+8]=suffix[i];
-        }
+    for (i = 0; i < 12; i++)
+    {
+        printf("%02x ", suffix[i]);
+        data[i + 11 + 274 + total + 8] = suffix[i];
+    }
 
     printf("\n dfu image \n");
-    for (i=0;i<321;i++)
-        {
-        printf("%02x ",data[i]);
-        }
+    for (i = 0; i < 321; i++)
+    {
+        printf("%02x ", data[i]);
+    }
 
-    printf("tutut %d\n",11+274+total+8+12);
+    printf("tutut %d\n", 11 + 274 + total + 8 + 12);
 
     filename = argv[2];
-  	fhex = fopen(filename, "wb");
+    fhex = fopen(filename, "wb");
 
-	if (fhex == NULL)
-        {
-		printf("   Can't open  for writing.\n");
-		return 0;
-        }
+    if (fhex == NULL)
+    {
+        printf("   Can't open  for writing.\n");
+        return 0;
+    }
 
-    fwrite(prefix,11,1,fhex);
-    fwrite(tprefix,274,1,fhex);
-    fwrite(image,total+8,1,fhex);
-    fwrite(suffix,12,1,fhex);
+    fwrite(prefix, 11, 1, fhex);
+    fwrite(tprefix, 274, 1, fhex);
+    fwrite(image, total + 8, 1, fhex);
+    fwrite(suffix, 12, 1, fhex);
 
-            /* compute crc */
-    for (i = 0; i < total+11+12+8+274; i++)
+    /* compute crc */
+    for (i = 0; i < total + 11 + 12 + 8 + 274; i++)
         crc32 = crc32_byte(crc32, data[i]);
 
-    crc_table[0]=crc32 & 0xFF;
-    crc_table[1]=(crc32 >> 8)& 0xFF;
-    crc_table[2]=(crc32 >> 16)& 0xFF;
-    crc_table[3]=(crc32 >> 24)& 0xFF;
-    fwrite(crc_table,4,1,fhex);
+    crc_table[0] = crc32 & 0xFF;
+    crc_table[1] = (crc32 >> 8) & 0xFF;
+    crc_table[2] = (crc32 >> 16) & 0xFF;
+    crc_table[3] = (crc32 >> 24) & 0xFF;
+    fwrite(crc_table, 4, 1, fhex);
     fclose(fhex);
-    printf("\nfile crc %08x  \n",crc32);
+    printf("\nfile crc %08x  \n", crc32);
     return 0;
 }
 
-
-
 Hexline parse_hex_line(theline, bytes, addr, num, code)
 char *theline;
-int *addr, *num, *code;int bytes[];
+int *addr, *num, *code;
+int bytes[];
 {
-	int sum, len, cksum;
-	Hexline ret;
-	char *ptr;
+    int sum, len, cksum;
+    Hexline ret;
+    char *ptr;
 
-	*num = 0;
-	if (theline[0] != ':')
+    *num = 0;
+    if (theline[0] != ':')
         return ret;
-	if (strlen(theline) < 11)
-        return ret;
-
-	ptr = theline+1;
-	if (!sscanf(ptr, "%02x", &len))
+    if (strlen(theline) < 11)
         return ret;
 
-	ptr += 2;
-	if ( strlen(theline) < (11 + (len * 2)) )
+    ptr = theline + 1;
+    if (!sscanf(ptr, "%02x", &len))
         return ret;
 
-	if (!sscanf(ptr, "%04x", addr))
+    ptr += 2;
+    if (strlen(theline) < (11 + (len * 2)))
         return ret;
 
-	ptr += 4;
-	if (!sscanf(ptr, "%02x", code))
+    if (!sscanf(ptr, "%04x", addr))
         return ret;
-	ptr += 2;
-	sum = (len & 255) + ((*addr >> 8) & 255) + (*addr & 255) + (*code & 255);
-	printf("  \n DFU image content: %04x %04x ", *addr, len);
 
-	while(*num != len)
-        {
-		if (!sscanf(ptr, "%02x", &bytes[*num])) return ret;
-		printf("%02x",bytes[*num]);
-		ptr += 2;
-		sum += bytes[*num] & 255;
-		(*num)++;
-		if (*num >= 256) return ret;
-        }
-
-	if (!sscanf(ptr, "%02x", &cksum))
+    ptr += 4;
+    if (!sscanf(ptr, "%02x", code))
         return ret;
-	if ( ((sum & 255) + (cksum & 255)) & 255 )
+    ptr += 2;
+    sum = (len & 255) + ((*addr >> 8) & 255) + (*addr & 255) + (*code & 255);
+    printf("  \n DFU image content: %04x %04x ", *addr, len);
+
+    while (*num != len)
+    {
+        if (!sscanf(ptr, "%02x", &bytes[*num]))
+            return ret;
+        printf("%02x", bytes[*num]);
+        ptr += 2;
+        sum += bytes[*num] & 255;
+        (*num)++;
+        if (*num >= 256)
+            return ret;
+    }
+
+    if (!sscanf(ptr, "%02x", &cksum))
+        return ret;
+    if (((sum & 255) + (cksum & 255)) & 255)
         return ret; /* checksum error */
 
-	ret.type = *code;
-	ret.adress = *addr;
-	ret.lenght = len;
-	ret.data = bytes;
-	return ret;
+    ret.type = *code;
+    ret.adress = *addr;
+    ret.lenght = len;
+    ret.data = bytes;
+    return ret;
 }
-
-
 
 int load_file(filename)
 char *filename;
 {
-	char line[1000];
-	FILE *fin;
-	int addr, n,status, bytes[256];
-	Hexline temp;
-	int i,j, total=0, lineno=1;
-	int minaddr=65536, maxaddr=0;
+    char line[1000];
+    FILE *fin;
+    int addr, n, status, bytes[256];
+    Hexline temp;
+    int i, j, total = 0, lineno = 1;
+    int minaddr = 65536, maxaddr = 0;
 
-	if (strlen(filename) == 0)
+    if (strlen(filename) == 0)
+    {
+        printf("   Can't load a file without the filename.");
+        printf("  '?' for help\n");
+        return 0;
+    }
+
+    fin = fopen(filename, "r");
+    if (fin == NULL)
+    {
+        printf("   Can't open file '%s' for reading.\n", filename);
+        return 0;
+    }
+
+    while (!feof(fin) && !ferror(fin))
+    {
+        line[0] = '\0';
+        fgets(line, 1000, fin);
+        if (line[strlen(line) - 1] == '\n')
+            line[strlen(line) - 1] = '\0';
+        if (line[strlen(line) - 1] == '\r')
+            line[strlen(line) - 1] = '\0';
+        temp = parse_hex_line(line, bytes, &addr, &n, &status);
+
+        switch (temp.type)
         {
-		printf("   Can't load a file without the filename.");
-		printf("  '?' for help\n");
-		return 0 ;
-        }
-
-	fin = fopen(filename, "r");
-	if (fin == NULL)
-        {
-		printf("   Can't open file '%s' for reading.\n", filename);
-		return 0;
-        }
-
-	while (!feof(fin) && !ferror(fin))
-        {
-		line[0] = '\0';
-		fgets(line, 1000, fin);
-		if (line[strlen(line)-1] == '\n')
-            line[strlen(line)-1] = '\0';
-		if (line[strlen(line)-1] == '\r')
-            line[strlen(line)-1] = '\0';
-		temp = parse_hex_line(line, bytes, &addr, &n, &status);
-
-		switch(temp.type)
+        case 0:
+            for (i = 0; i <= (n - 1); i++)
             {
-            case 0 :
-                for(i=0; i<=(n-1); i++)
-                    {
-					memory[addr] = bytes[i] & 255;
-					image[addr+8] = bytes[i] & 255;
-					total++;
-					if (addr < minaddr)
-                        minaddr = addr;
-					if (addr > maxaddr)
-                        maxaddr = addr;
-					addr++;
-
-                    }
-				printf("saved\n");
-            break ;
-
-			case 1 :
-			    fclose(fin);
-				printf("   Loaded %04x bytes \n", total);
-				image[7]=(total >> 24)& 0xFF;
-				image[6]=(total >> 16)& 0xFF;
-				image[5]=(total >> 8)& 0xFF;
-				image[4]=total & 0xFF;
-				printf("image size %02x %02x %02x %02x\n",total & 0xFF,(total >> 8)& 0xFF,(total >> 16)& 0xFF,(total >> 24)& 0xFF);
-
-				return total;
-            break ;
-
-            case 4 :
-
-                printf("\n start of file detected, code starting at adress ");
-                for (j=0;j<temp.lenght;j++)
-                    {
-                    printf("%02x",*(temp.data+j));
-                    image[3-j]=*(temp.data+j);
-                    }
-                image[0]=0x00;
-                image[1]=0x00;
-                printf("0000\n");
-            break;
-
-            default :
-                printf("error, bad type code : %d\n",temp.type);
-            break;
+                memory[addr] = bytes[i] & 255;
+                image[addr + 8] = bytes[i] & 255;
+                total++;
+                if (addr < minaddr)
+                    minaddr = addr;
+                if (addr > maxaddr)
+                    maxaddr = addr;
+                addr++;
             }
-		lineno++;
+            printf("saved\n");
+            break;
+
+        case 1:
+            fclose(fin);
+            printf("   Loaded %04x bytes \n", total);
+            image[7] = (total >> 24) & 0xFF;
+            image[6] = (total >> 16) & 0xFF;
+            image[5] = (total >> 8) & 0xFF;
+            image[4] = total & 0xFF;
+            printf("image size %02x %02x %02x %02x\n", total & 0xFF, (total >> 8) & 0xFF, (total >> 16) & 0xFF, (total >> 24) & 0xFF);
+
+            return total;
+            break;
+
+        case 4:
+
+            printf("\n start of file detected, code starting at adress ");
+            for (j = 0; j < temp.lenght; j++)
+            {
+                printf("%02x", *(temp.data + j));
+                image[3 - j] = *(temp.data + j);
+            }
+            image[0] = 0x00;
+            image[1] = 0x00;
+            printf("0000\n");
+            break;
+
+        default:
+            printf("error, bad type code : %d\n", temp.type);
+            break;
         }
+        lineno++;
+    }
     return 0;
 }
 
-
-
-
-
-
-
-void create_tprefix(int size){
+void create_tprefix(int size)
+{
 
     size = size + 8;
-    //szSignature
-    tprefix[0]='T';
-    tprefix[1]='a';
-    tprefix[2]='r';
-    tprefix[3]='g';
-    tprefix[4]='e';
-    tprefix[5]='t';
+    // szSignature
+    tprefix[0] = 'T';
+    tprefix[1] = 'a';
+    tprefix[2] = 'r';
+    tprefix[3] = 'g';
+    tprefix[4] = 'e';
+    tprefix[5] = 't';
 
-    //bAlternateSetting
-    tprefix[6]=alternate;
+    // bAlternateSetting
+    tprefix[6] = alternate;
 
-    //bTargetNamed
-    tprefix[7]=target_named;
+    // bTargetNamed
+    tprefix[7] = target_named;
 
-    //szTargetName
-    tprefix[11]='S';
-    tprefix[12]='T';
-    tprefix[13]=' ';
-    tprefix[14]='H';
-    tprefix[15]='o';
-    tprefix[16]='r';
-    tprefix[17]='n';
-    tprefix[18]='e';
-    tprefix[19]='t';
-    tprefix[20]=' ';
-    tprefix[21]='B';
-    tprefix[22]='o';
-    tprefix[23]='a';
-    tprefix[24]='r';
-    tprefix[25]='d';
-    tprefix[26]=' ';
-    tprefix[27]='D';
-    tprefix[28]='F';
-    tprefix[29]='U';
-    tprefix[30]=' ';
-    tprefix[31]='F';
-    tprefix[32]='i';
-    tprefix[33]='l';
-    tprefix[34]='e';
-    tprefix[35]=' ';
+    // szTargetName
+    tprefix[11] = 'S';
+    tprefix[12] = 'T';
+    tprefix[13] = ' ';
+    tprefix[14] = 'H';
+    tprefix[15] = 'o';
+    tprefix[16] = 'r';
+    tprefix[17] = 'n';
+    tprefix[18] = 'e';
+    tprefix[19] = 't';
+    tprefix[20] = ' ';
+    tprefix[21] = 'B';
+    tprefix[22] = 'o';
+    tprefix[23] = 'a';
+    tprefix[24] = 'r';
+    tprefix[25] = 'd';
+    tprefix[26] = ' ';
+    tprefix[27] = 'D';
+    tprefix[28] = 'F';
+    tprefix[29] = 'U';
+    tprefix[30] = ' ';
+    tprefix[31] = 'F';
+    tprefix[32] = 'i';
+    tprefix[33] = 'l';
+    tprefix[34] = 'e';
+    tprefix[35] = ' ';
 
-    //dwTargetSize
-    tprefix[266]=size & 0xFF;
-    tprefix[267]=(size >> 8)& 0xFF;
-    tprefix[268]=(size >> 16)& 0xFF;
-    tprefix[269]=(size >> 24)& 0xFF;
+    // dwTargetSize
+    tprefix[266] = size & 0xFF;
+    tprefix[267] = (size >> 8) & 0xFF;
+    tprefix[268] = (size >> 16) & 0xFF;
+    tprefix[269] = (size >> 24) & 0xFF;
 
-    //dwNbElements
+    // dwNbElements
 
-    tprefix[270]=0x01;
-    tprefix[271]=0x00;
-    tprefix[272]=0x00;
-    tprefix[273]=0x00;
-
+    tprefix[270] = 0x01;
+    tprefix[271] = 0x00;
+    tprefix[272] = 0x00;
+    tprefix[273] = 0x00;
 }
 
-void create_dfuprefix(int size){
-    int total = size +293;
+void create_dfuprefix(int size)
+{
+    int total = size + 293;
 
-    //szSignature
-    prefix[0]='D';
-    prefix[1]='f';
-    prefix[2]='u';
-    prefix[3]='S';
-    prefix[4]='e';
+    // szSignature
+    prefix[0] = 'D';
+    prefix[1] = 'f';
+    prefix[2] = 'u';
+    prefix[3] = 'S';
+    prefix[4] = 'e';
 
-    //bVeersion
+    // bVeersion
 
-    prefix[5]=version;
+    prefix[5] = version;
 
-    //DFUImageSize
-    prefix[6]=total & 0xFF;
-    prefix[7]=(total >> 8)& 0xFF;
-    prefix[8]=(total >> 16)& 0xFF;
-    prefix[9]=(total >> 24)& 0xFF;
+    // DFUImageSize
+    prefix[6] = total & 0xFF;
+    prefix[7] = (total >> 8) & 0xFF;
+    prefix[8] = (total >> 16) & 0xFF;
+    prefix[9] = (total >> 24) & 0xFF;
 
-    //bTargets
-    prefix[10]=targets;
-
+    // bTargets
+    prefix[10] = targets;
 }
 
-void create_dfusuffix(void){
+void create_dfusuffix(void)
+{
 
-    //bcdDevice
-    suffix[0]=0x0;
-    suffix[1]=0x0;
-    //idProduct
-    suffix[2]=0x0;
-    suffix[3]=0x0;
-    //idVendor
-    suffix[4]=0x0;
-    suffix[5]=0x0;
-    //bcdDFU
-    suffix[6]=0x1A;
-    suffix[7]=0x01;
-    //ucDfuSignature
-    suffix[8]='U';
-    suffix[9]='F';
-    suffix[10]='D';
-    //bLength
-    suffix[11]=0x10;
-
+    // bcdDevice
+    suffix[0] = 0x0;
+    suffix[1] = 0x0;
+    // idProduct
+    suffix[2] = 0x0;
+    suffix[3] = 0x0;
+    // idVendor
+    suffix[4] = 0x0;
+    suffix[5] = 0x0;
+    // bcdDFU
+    suffix[6] = 0x1A;
+    suffix[7] = 0x01;
+    // ucDfuSignature
+    suffix[8] = 'U';
+    suffix[9] = 'F';
+    suffix[10] = 'D';
+    // bLength
+    suffix[11] = 0x10;
 }
-
-
 
 unsigned long crc32_table[] = {
     0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
