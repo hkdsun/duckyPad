@@ -89,6 +89,18 @@ void change_brightness()
     }
 }
 
+#define PRIMARY_PROFILE 1
+#define PROFILES_MENU_PROFILE 17
+#define LAUNCH_MENU_PROFILE 8
+
+void present_menus(uint8_t p_single_tap, uint8_t p_double_tap) {
+  if(p_cache.current_profile == p_single_tap) { // double tapped
+    restore_profile(p_double_tap);
+  } else { // single tapped
+    restore_profile(p_single_tap);
+  }
+}
+
 void handle_tactile_button_press(uint8_t button_num)
 {
     button_hold_start = HAL_GetTick();
@@ -107,25 +119,19 @@ void handle_tactile_button_press(uint8_t button_num)
     if(button_hold_duration < LONG_PRESS_MS) // short press
     {
         if(button_num == KEY_BUTTON1)
-        {
-          if(p_cache.current_profile == 1) {
-            restore_profile(8); // go to profile selection menu
-          } else {
-            restore_profile(1); // go home
-          }
-        } else if(button_num == KEY_BUTTON2)
-          change_profile(NEXT_PROFILE);
+          present_menus(LAUNCH_MENU_PROFILE, PRIMARY_PROFILE);
+        else if(button_num == KEY_BUTTON2)
+          present_menus(PROFILES_MENU_PROFILE, PRIMARY_PROFILE);
     }
     else // long press
     {
       if(button_num == KEY_BUTTON1)
-        change_profile(PREV_PROFILE);
-      else if(button_num == KEY_BUTTON2) // -
-      {
+        restore_profile(PRIMARY_PROFILE);
+      else if(button_num == KEY_BUTTON2) {
         is_busy = 1;
         change_brightness();
         save_settings();
-        print_legend();
+        print_legend(0);
         is_busy = 0;
         button_service_all();
       }
