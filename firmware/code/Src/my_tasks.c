@@ -15,7 +15,7 @@
 #include "usbd_desc.h"
 #include "ds3_vm.h"
 
-#define LONG_PRESS_MS 500
+#define LONG_PRESS_MS 200
 
 uint8_t init_complete;
 uint32_t last_keypress;
