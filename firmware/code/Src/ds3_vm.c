@@ -283,7 +283,7 @@ void execute_instruction(uint16_t curr_pc, ds3_exe_result* exe, uint8_t keynum)
   uint16_t op_data = make_uint16(byte0, byte1);
   current_key = keynum;
   // printf("PC: %04d | Opcode: %02d | 0x%02x 0x%02x | 0x%04x\n", curr_pc, this_opcode, byte0, byte1, op_data);
-  
+
   exe->result = EXE_OK;
   exe->next_pc = curr_pc + INSTRUCTION_SIZE_BYTES;
   exe->data = 0;
@@ -524,7 +524,7 @@ void execute_instruction(uint16_t curr_pc, ds3_exe_result* exe, uint8_t keynum)
   }
   else if(this_opcode == OP_OLR)
   {
-    print_legend();
+    print_legend(0);
   }
   else if(this_opcode == OP_BCLR)
   {

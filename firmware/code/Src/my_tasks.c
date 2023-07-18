@@ -824,7 +824,7 @@ void keypress_task_start(void const * argument)
   if(is_pressed(0))
   {
     select_keymap();
-    print_legend();
+    print_legend(0);
   }
 
   is_busy = 0;
@@ -850,7 +850,9 @@ void keypress_task_start(void const * argument)
           goto key_task_end;
         }
         if(i == KEY_BUTTON1 || i == KEY_BUTTON2)
+        {
           handle_tactile_button_press(i);
+        }
         if(hold_cache[i].type != KEY_TYPE_UNKNOWN && hold_cache[i].code != 0)
         {
           press_key(hold_cache[i].code, hold_cache[i].type);
@@ -903,7 +905,7 @@ void keypress_task_start(void const * argument)
           }
           if (this_exe.epilogue_actions & NEED_OLED_REFRESH)
           {
-            print_legend();
+            print_legend(0);
           }
         }
       }

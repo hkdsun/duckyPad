@@ -3,7 +3,7 @@
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
+#endif
 
 #include "stm32f0xx_hal.h"
 #include "buttons.h"
@@ -61,9 +61,12 @@ void change_profile(uint8_t dir);
 void handle_keypress(uint8_t keynum, but_status* b_status, ds3_exe_result* exe);
 void scan_profiles(void);
 uint8_t get_last_profile(void);
+uint32_t ms_since_last_profile_change(void);
+
 void restore_profile(uint8_t profile_id);
 void keypress_wrapper(uint8_t keynum, ds3_exe_result* exe);
-void print_legend(void);
+void print_title(void);
+void print_legend(uint8_t hide_title);
 void save_settings(void);
 void load_settings(void);
 void save_last_profile(uint8_t profile_id);
